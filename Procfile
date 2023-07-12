@@ -1,1 +1,1 @@
-web: python manage.py migrate && gunicorn GradeBookAPI.wsgi
+web: python3 manage.py migrate --run-syncdb && gunicorn GradeBookAPI.wsgi
