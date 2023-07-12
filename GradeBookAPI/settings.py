@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure--kkhz)&u_yh757%^e=6bk5pldw%e^65kn@c$u=ph$m297(rs61
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['gradebookapi-production.up.railway.app']
 
 
 # Application definition
