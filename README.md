@@ -1,7 +1,7 @@
 # Titulo
 
 GradeBookAPI, projeto de gestão de professor, notas, alunos e disciplinas
-
+Documentação apenas dos endpoints usados no front end, no total foram mais de 25 endpoints feitos para esse repositório
 ## Instalação
 
 Como faz para instalar o e caso seja necessário rodar o projeto localmente
