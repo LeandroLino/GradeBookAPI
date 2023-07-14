@@ -3,7 +3,12 @@
 GradeBookAPI, projeto de gestão de professor, notas, alunos e disciplinas
 
 Documentação apenas dos endpoints usados no front end, no total foram mais de 25 endpoints feitos para esse repositório.
+
 [Notion](https://moored-cloth-8a0.notion.site/Grade-Book-a2fee07989784714b9a3dba1924e1c6a?pvs=4)
+
+Schema de banco de dados do inicio do projeto, porem ter algumas pequenas divergencias.
+![image](https://github.com/LeandroLino/GradeBookAPI/assets/72203926/6fc9549e-908a-4650-9cc5-2edc6a9c3814)
+
 
 ## Instalação
 
