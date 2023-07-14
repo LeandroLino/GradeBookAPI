@@ -19,7 +19,7 @@ python3 manage.py runserver
 ## Utilização
 Uma API de controle estudantil, é possivel controlar alunos, professor, disciplinas e notas.
 
-##POST /api/student/register/ - Criando uma conta de estudante:
+## POST /api/student/register/ - Criando uma conta de estudante:
 ```
 {
   "username": "admin",
@@ -147,7 +147,7 @@ Uma API de controle estudantil, é possivel controlar alunos, professor, discipl
 }
 ```
 
-##GET /api/teacher/list-disciplines/<teacher_id>/ - Listar disciplinas do professor
+## GET /api/teacher/list-disciplines/<teacher_id>/ - Listar disciplinas do professor
 **Header -> Authorization: Token <token-do-professor>**
 ```
 {}
@@ -178,7 +178,7 @@ Uma API de controle estudantil, é possivel controlar alunos, professor, discipl
 	}...
 ```
 
-##POST /api/disciplines/create/ - Criar disciplinas
+## POST /api/disciplines/create/ - Criar disciplinas
 **Header -> Authorization: Token <token-do-professor>**
 ```
 {
@@ -204,7 +204,7 @@ Uma API de controle estudantil, é possivel controlar alunos, professor, discipl
 }
 ```
 
-##GET /api/disciplines/list/discipline/<discipline_id>/ - Lista um disciplinas
+## GET /api/disciplines/list/discipline/<discipline_id>/ - Lista um disciplinas
 **Header -> Authorization: Token <token-do-professor>**
 ```
 {}
@@ -228,7 +228,7 @@ Uma API de controle estudantil, é possivel controlar alunos, professor, discipl
 ```
 
 
-##GET /api/student/enroll/discipline/<discipline_id>/student/<student_id>/ - Matricula um estudante em uma disciplina
+## GET /api/student/enroll/discipline/<discipline_id>/student/<student_id>/ - Matricula um estudante em uma disciplina
 **Header -> Authorization: Token <token-do-professor>**
 ```
 {}
@@ -251,7 +251,7 @@ Uma API de controle estudantil, é possivel controlar alunos, professor, discipl
 }
 ```
 
-##POST /api/report-notes/create/discipline/<discipline_id>/student/<student_id>/ - Criar uma nota e atribui um estundante
+## POST /api/report-notes/create/discipline/<discipline_id>/student/<student_id>/ - Criar uma nota e atribui um estundante
 Nesse endpoint foi feito uma adaptação no front juntando o endpoint de criar boletim com o de criar nota
 
 **Header -> Authorization: Token <token-do-professor>**
@@ -268,7 +268,7 @@ Nesse endpoint foi feito uma adaptação no front juntando o endpoint de criar b
 }
 ```
 
-##POST /api/report-cards/create/student/<student_id>/note/<note_id>/ - Criar um boletim baseado em uma note existente
+## POST /api/report-cards/create/student/<student_id>/note/<note_id>/ - Criar um boletim baseado em uma note existente
 Nesse endpoint foi feito uma adaptação no front juntando o endpoint de criar boletim com o de criar nota
 
 **Header -> Authorization: Token <token-do-professor>**
