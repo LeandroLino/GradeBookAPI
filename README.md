@@ -117,8 +117,6 @@ Uma API de controle estudantil, é possivel controlar alunos, professor, discipl
 ]
 ```
 
-## Teacher
-
 ## POST /api/teacher/register/ - Registrando professor
 ```
 {
