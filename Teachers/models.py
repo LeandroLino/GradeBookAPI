@@ -9,7 +9,7 @@ class TeachersModel(models.Model):
     name = models.CharField(max_length=255)
     email = models.CharField(max_length=255, unique=True)
     password = models.CharField(max_length=255)
-    discipline = models.OneToOneField('Disciplines.DisciplinesModel', on_delete=models.CASCADE, null=True)
+    disciplines = models.ManyToManyField('Disciplines.DisciplinesModel', blank=True)
     inactive = models.BooleanField(default=False)
 
     def is_teacher(self):

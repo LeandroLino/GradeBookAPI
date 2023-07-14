@@ -13,9 +13,6 @@ class StudentsModel(models.Model):
     disciplines = models.ManyToManyField(DisciplinesModel)
     inactive = models.BooleanField(default=False)
 
-    #def __str__(self):
-    #    return self.email
-
 class AuthToken(models.Model):
     user = models.OneToOneField(StudentsModel, on_delete=models.CASCADE)
     token = models.CharField(max_length=40, unique=True)
@@ -23,8 +20,8 @@ class AuthToken(models.Model):
     expires_at = models.DateTimeField(default=timezone.now() + timedelta(days=7))
 
     def save(self, *args, **kwargs):
-        if not self.expires_at:
-            self.expires_at = timezone.now() + timedelta(days=7)  # Expira em 7 dias
+        if not self.token:
+            self.token = self.generate_token()
         return super().save(*args, **kwargs)
 
     def generate_token(self):

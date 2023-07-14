@@ -6,12 +6,29 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import get_object_or_404
-from datetime import datetime, timedelta
+from datetime import timedelta
+from django.utils import timezone
+import jwt
+from django.conf import settings
 
 from .serializer import StudentsSerializer, StudentSerializer
-from Disciplines.serializer import DisciplineSerializer
 from .models import StudentsModel, AuthToken
+
+from Report_card.models import ReportCardsModel
+from Disciplines.models import DisciplinesModel
+
+from Disciplines.serializer import DisciplineSerializer
+from Report_card.serializer import ReportCardserializer
+from Report_notes.serializer import ReportNotesSerializer
+
 from utils import generate_registration_id
+
+class StudentDisciplineReportCardAPI(APIView):
+    def get(self, request, student_id, discipline_id):
+        report_cards = ReportCardsModel.objects.filter(student_id=student_id)
+        report_cards = report_cards.filter(notes__discipline_id=discipline_id)
+        serializer = ReportCardserializer(report_cards, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class StudentsAPI(APIView):
     def get(self, request, student_id=None):
@@ -46,23 +63,31 @@ class StudentsRegister(APIView):
             serializer.validated_data['password'] = hashed_password
 
             serializer.save()
-            return Response({}, status=status.HTTP_201_CREATED)
+
+            student = StudentsModel.objects.filter(email=serializer.data['email']).first()
+            auth_token, _ = AuthToken.objects.get_or_create(user=student)
+            token = jwt.encode({'email': student.__dict__['email'], 'id': student.__dict__['id'], 'type': 'Student'}, settings.SIMPLE_JWT['SIGNING_KEY'], algorithm='HS256').decode('utf-8')
+            auth_token.token = token
+            auth_token.expires_at = timezone.now() + timedelta(days=7)
+            auth_token.save()
+
+            return Response({'access_token': str(token)}, status=status.HTTP_201_CREATED)
 
 class StudentsLogin(APIView):
     def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
+            email = request.data.get('email')
+            password = request.data.get('password')
 
-        student = StudentsModel.objects.filter(email=email).first()
+            student = StudentsModel.objects.filter(email=email).first()
+            if student is not None and check_password(password, student.password):
+                auth_token, _ = AuthToken.objects.get_or_create(user=student)
+                token = jwt.encode({'email': student.__dict__['email'], 'id': student.__dict__['id'], 'type': 'Student'}, settings.SIMPLE_JWT['SIGNING_KEY'], algorithm='HS256').decode('utf-8')
+                auth_token.token = token
+                auth_token.expires_at = timezone.now() + timedelta(days=7)
+                auth_token.save()
 
-        if student is not None and check_password(password, student.password):
-            token = AuthToken.objects.filter(user=student).first()
-            if not token:
-                token = AuthToken(user=student)
-                token.expires_at = datetime.now() + timedelta(days=1)
-                token.save()
-            return Response({'token': token.token})
+                return Response({'access_token': str(token)})
 
-        return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 

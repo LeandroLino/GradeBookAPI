@@ -7,34 +7,58 @@ from django.shortcuts import get_object_or_404
 
 from .serializer import DisciplineSerializer, GetDisciplineSerializer
 from .models import DisciplinesModel
+
 from Students.models import StudentsModel
 from Teachers.models import TeachersModel
+
 from Teachers.serializer import GetdDisciplineTeachersSerializer
 from Students.serializer import StudentSerializer
 
-from Teachers.auth import CustomAuthenticationBackend, IsTeacherPermission
 
+from auth import CustomAuthenticationBackend, IsTeacherPermission
 
 class DisciplinesAPI(APIView):
     permission_classes = [IsTeacherPermission]
     authentication_classes = [CustomAuthenticationBackend]
     def post(self, request):
-        serializer = DisciplineSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        discipline = DisciplinesModel.objects.create(**request.data)
+        teacher = get_object_or_404(TeachersModel, id=request.user['id'])
+        if teacher.inactive:
+            return Response({'error': 'Invalid discipline or teacher'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, discipline_id=None):
-        if discipline_id:
-            discipline = get_object_or_404(DisciplinesModel, id=discipline_id)
-            serializer = GetDisciplineSerializer(instance=discipline)
+        if discipline and teacher:
+            discipline.teachers.add(teacher)
+            teacher.disciplines.add(discipline)
+            discipline.save()
+            teacher.save()
+            serializer = GetDisciplineSerializer(discipline)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            disciplines = DisciplinesModel.objects.all()
+            return Response({'error': 'Invalid discipline or teacher'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+    class GetDiscipline(APIView):
+        def get(self, request, discipline_id=None, page=2, limit=20):
+            if discipline_id:
+                discipline = get_object_or_404(DisciplinesModel, id=discipline_id)
+                serializer = GetDisciplineSerializer(instance=discipline)
+            else:
+                start_index = (page - 1) * limit
+                end_index = start_index + limit
+                disciplines = DisciplinesModel.objects.all()
+                disciplines = disciplines[start_index:end_index]
+                serializer = GetDisciplineSerializer(instance=disciplines, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+    class GetTeacherDisciplines(APIView):
+        def get(self, request, teacher_id):
+            teacher = get_object_or_404(TeachersModel, id=teacher_id)
+            disciplines = teacher.disciplines.all()
             serializer = GetDisciplineSerializer(instance=disciplines, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class StudentDisciplinesEnroll(APIView):
@@ -55,6 +79,12 @@ class StudentDisciplinesEnroll(APIView):
         serializer.data['disciplines'] = disciplines_serializer.data
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def get(self, request, student_id):
+        disciplines = DisciplinesModel.objects.filter(students=student_id)
+        disciplines_serializer = GetDisciplineSerializer(instance=disciplines, many=True)
+        return Response(disciplines_serializer.data, status=status.HTTP_200_OK)
+
 
 class TeacherDisciplinesEnroll(APIView):
     permission_classes = [IsTeacherPermission]
@@ -67,13 +97,19 @@ class TeacherDisciplinesEnroll(APIView):
             return Response({'error': 'Invalid discipline or teacher'}, status=status.HTTP_400_BAD_REQUEST)
 
         if discipline and teacher:
-            discipline.teacher = teacher
+            discipline.teachers.add(teacher)
+            teacher.disciplines.add(discipline)
             discipline.save()
-            teacher.discipline = discipline
             teacher.save()
-            serializer = GetdDisciplineTeachersSerializer(teacher)
+            serializer = GetDisciplineSerializer(discipline)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response({'error': 'Invalid discipline or teacher'}, status=status.HTTP_404_NOT_FOUND)
+
+        
+    def get(self, request, teacher_id):
+        disciplines = DisciplinesModel.objects.filter(teachers=teacher_id)
+        disciplines_serializer = GetDisciplineSerializer(instance=disciplines, many=True)
+        return Response(disciplines_serializer.data, status=status.HTTP_200_OK)
 
     

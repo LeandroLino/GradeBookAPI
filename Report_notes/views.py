@@ -3,12 +3,17 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import ReportNotesModel
 from .serializer import ReportNotesSerializer
+from Students.serializer import DisciplineStudentSerializer
+
+from .models import ReportNotesModel
 from Disciplines.models import DisciplinesModel
 from Students.models import StudentsModel
-from Students.serializer import DisciplineStudentSerializer
-from Teachers.auth import CustomAuthenticationBackend, IsTeacherPermission
+from Teachers.models import TeachersModel
+from auth import CustomAuthenticationBackend, IsTeacherPermission, IsStudentPermission
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 
 class ReportNotesAPI(APIView):
     permission_classes = [IsTeacherPermission]
@@ -18,17 +23,32 @@ class ReportNotesAPI(APIView):
         serializer = ReportNotesSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        teacher_id = request.user['id']
+        teacher = TeachersModel.objects.get(id=teacher_id)
+
+        serializer.validated_data['teacher'] = teacher
+        registration = None
         if student_id:
-            student = StudentsModel.objects.get(id=student_id)
-            student_serializer = DisciplineStudentSerializer(data=student.__dict__)
-            student_serializer.is_valid()
-            request.data['registration'] = student_serializer.data['registration'] 
-        model = ReportNotesModel.objects.create(**request.data)
+            try:
+                student = get_object_or_404(StudentsModel, id=student_id)
+                student_serializer = DisciplineStudentSerializer(data=student.__dict__)
+                student_serializer.is_valid()
+                registration = student_serializer.data['registration']
+            except ObjectDoesNotExist: 
+                return Response({}, status=status.HTTP_404_NOT_FOUND)
+
+        model = ReportNotesModel(**serializer.validated_data)
 
         if discipline_id:
             discipline = DisciplinesModel.objects.get(id=discipline_id)
             model.discipline = discipline
+
+        if registration:
+            model.registration = registration
+
         model.save()
+
         serializer = ReportNotesSerializer(instance=model)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

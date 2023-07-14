@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure--kkhz)&u_yh757%^e=6bk5pldw%e^65kn@c$u=ph$m297(rs61
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'gradebookapi-production.up.railway.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'gradebookapi-production.up.railway.app', 'http://localhost:5173', '*']
 
 
 # Application definition
@@ -45,7 +45,27 @@ INSTALLED_APPS = [
     'Disciplines',
     'Teachers',
     'Report_notes',
-    'Report_card'
+    'Report_card',
+    'corsheaders',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'https://*',
+    "http://*",
+]
+CORS_ORIGIN_ALLOW_ALL = True   
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+CORS_ALLOWED_HEADERS = [
+    'Content-Type',
 ]
 
 REST_FRAMEWORK = {
@@ -88,7 +108,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+APPEND_SLASH = False
 
 ROOT_URLCONF = 'GradeBookAPI.urls'
 

@@ -10,8 +10,8 @@ class DisciplineSerializer(serializers.ModelSerializer):
         
 class GetDisciplineSerializer(serializers.ModelSerializer):
     students = DisciplineStudentSerializer(many=True, read_only=True)
-    teacher = GetTeachersSerializer(read_only=True)
+    teachers = GetTeachersSerializer(many=True, read_only=True)
     
     class Meta:
         model = DisciplinesModel
-        fields = ('id', 'name', 'workload', 'students', 'teacher')
+        fields = ('id', 'name', 'workload', 'students', 'teachers')

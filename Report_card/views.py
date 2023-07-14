@@ -9,7 +9,16 @@ from Report_notes.models import ReportNotesModel
 from .serializer import ReportCardserializer
 from Students.models import StudentsModel
 
-from Teachers.auth import CustomAuthenticationBackend, IsTeacherPermission
+from auth import CustomAuthenticationBackend, IsTeacherPermission, IsStudentPermission
+
+
+class ReportCardStudentAPI(APIView):
+    permission_classes = [IsStudentPermission]
+    authentication_classes = [CustomAuthenticationBackend]
+    def get(self, request, student_id):
+        report_cards = ReportCardsModel.objects.filter(student_id=student_id)
+        serializer = ReportCardserializer(report_cards, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ReportCardsAPI(APIView):
 
@@ -24,8 +33,6 @@ class ReportCardsAPI(APIView):
         if student_id:
             student = get_object_or_404(StudentsModel, id=student_id)
             model.student = student
-        if note_id:
-            print(model.__dict__)
             note = get_object_or_404(ReportNotesModel, id=note_id)
             model.notes.add(note) 
         
@@ -33,11 +40,7 @@ class ReportCardsAPI(APIView):
         serializer = ReportCardserializer(instance=model)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def get(self, request, student_id=None):
-        if student_id:
-            report_cards = ReportCardsModel.objects.filter(student_id=student_id)
-            serializer = ReportCardserializer(report_cards, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request):
         report_cards = ReportCardsModel.objects.all()
         serializer = ReportCardserializer(report_cards, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
