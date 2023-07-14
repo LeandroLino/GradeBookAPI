@@ -1,6 +1,6 @@
 # Titulo
 
-Parking Lot, Projeto de simulação de uma central de estacionamento da Kenzie Academic Brazil
+GradeBookAPI, projeto de gestão de professor, notas, alunos e disciplinas
 
 ## Instalação
 
