@@ -1,3 +1,3 @@
 web: gunicorn GradeBookAPI.wsgi:application --log-file - --log-level debug
-python manage.py collectstatic --noinput
-manage.py migrate --run-syncdb
+release: python manage.py collectstatic --noinput
+release: manage.py migrate --run-syncdb

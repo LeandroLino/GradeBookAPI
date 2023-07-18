@@ -21,7 +21,6 @@ class IsStudentPermission(BasePermission):
     def has_permission(self, request, view):
         if request.user['type'] == "Teacher":
             return False
-        print(request.user['email'])
         user = StudentsModel.objects.get(email=request.user['email'])
         if user:
             return True
